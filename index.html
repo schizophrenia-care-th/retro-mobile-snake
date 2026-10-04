@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nokia Classic Snake II</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: #11161d;
+            background-image: 
+                radial-gradient(circle at 50% 30%, rgba(35, 48, 68, 0.7) 0%, rgba(10, 14, 20, 1) 90%),
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 2px, transparent 2px, transparent 10px);
+        }
+
+        .pixel-font {
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* Nokia Matte Navy Blue Case */
+        .nokia-case {
+            background: linear-gradient(165deg, #2c3848 0%, #222b37 40%, #1a212b 100%);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.85),
+                0 10px 20px rgba(0, 0, 0, 0.5),
+                inset 0 2px 3px rgba(255, 255, 255, 0.25),
+                inset 0 -4px 8px rgba(0, 0, 0, 0.6);
+            border-radius: 52px 52px 48px 48px;
+            border: 1px solid #3b4a5e;
+        }
+
+        /* Silver Bezel Frame encircling screen and upper controls */
+        .silver-bezel {
+            background: linear-gradient(180deg, #d8e0e8 0%, #a0acbc 30%, #7e8c9f 70%, #b8c4d4 100%);
+            border-radius: 40px 40px 35px 35px;
+            box-shadow: 
+                0 4px 10px rgba(0, 0, 0, 0.5),
+                inset 0 1px 2px rgba(255, 255, 255, 0.9),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.4);
+            padding: 10px;
+        }
+
+        /* Navy Inner Screen Surround */
+        .inner-bezel-navy {
+            background: linear-gradient(180deg, #1b222d 0%, #252f3e 100%);
+            border-radius: 30px 30px 20px 20px;
+            padding: 12px 14px 10px 14px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.8);
+        }
+
+        /* Authentic Nokia LCD Screen */
+        .nokia-lcd-screen {
+            background-color: #92a87a;
+            color: #1a2d10;
+            box-shadow: 
+                inset 0 3px 8px rgba(20, 35, 12, 0.6),
+                0 0 2px rgba(146, 168, 122, 0.5);
+            border: 3px solid #141c10;
+            image-rendering: pixelated;
+        }
+
+        /* Pixel Scanlines Overlay */
+        .lcd-grid-overlay {
+            background: linear-gradient(rgba(26, 45, 16, 0.06) 50%, rgba(146, 168, 122, 0.06) 50%);
+            background-size: 100% 3px;
+        }
+
+        /* 3D Oval & Crescent Buttons */
+        .key-btn {
+            background: linear-gradient(180deg, #ffffff 0%, #dbe2ea 40%, #9caec2 100%);
+            box-shadow: 
+                0 4px 0 #546478,
+                0 6px 8px rgba(0, 0, 0, 0.5),
+                inset 0 1px 1px rgba(255, 255, 255, 1);
+            transition: all 0.06s ease;
+        }
+
+        .key-btn:active, .key-btn.active {
+            transform: translateY(3px);
+            box-shadow: 
+                0 1px 0 #546478,
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                inset 0 1px 1px rgba(255, 255, 255, 0.8);
+            background: linear-gradient(180deg, #dbe2ea 0%, #9caec2 100%);
+        }
+
+        /* Top Crescent Control Keys */
+        .navi-key {
+            background: linear-gradient(180deg, #ffffff 0%, #ccd6e2 50%, #8d9eb3 100%);
+            box-shadow: 
+                0 3px 0 #4a586a,
+                0 5px 8px rgba(0,0,0,0.4),
+                inset 0 1px 1px #fff;
+        }
+        .navi-key:active, .navi-key.active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #4a586a;
+        }
+
+        /* Speaker Slots */
+        .speaker-slot {
+            background: #0f141b;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        @keyframes blink-fast {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        .blink-text {
+            animation: blink-fast 1s infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-3 select-none">
+
+    <div class="relative w-full max-w-[370px] flex flex-col items-center">
+        
+        <!-- Header Title without model numbers -->
+        <div class="text-center mb-3">
+            <h1 class="text-xl font-bold text-slate-200 tracking-wider flex items-center justify-center gap-2">
+                <span class="text-cyan-400 font-extrabold">NOKIA</span> <span class="text-slate-300">RETRO</span>
+            </h1>
+            <p class="text-[11px] text-slate-400">Classic Snake II Simulator</p>
+        </div>
+
+        <!-- Phone Chassis Container -->
+        <div class="nokia-case w-full p-4 relative flex flex-col items-center">
+            
+            <!-- Silver Bezel Area -->
+            <div class="silver-bezel w-full flex flex-col items-center">
+                
+                <!-- Inner Navy Frame for Screen & Logo -->
+                <div class="inner-bezel-navy w-full flex flex-col items-center">
+                    
+                    <!-- Speaker Grill -->
+                    <div class="flex gap-1 mb-2.5 items-center justify-center">
+                        <div class="speaker-slot w-1 h-3 rounded-full"></div>
+                        <div class="speaker-slot w-1 h-4 rounded-full"></div>
+                        <div class="speaker-slot w-1 h-4.5 rounded-full"></div>
+                        <div class="speaker-slot w-1 h-4 rounded-full"></div>
+                        <div class="speaker-slot w-1 h-3 rounded-full"></div>
+                    </div>
+
+                    <!-- Nokia Logo Box -->
+                    <div class="bg-[#151b24] px-3 py-0.5 rounded border border-[#2d3848] mb-2 shadow-inner">
+                        <span class="text-slate-200 font-black tracking-[0.2em] text-xs uppercase font-sans">NOKIA</span>
+                    </div>
+
+                    <!-- LCD Screen -->
+                    <div class="nokia-lcd-screen relative w-full aspect-[4/3] rounded-sm p-1.5 flex flex-col justify-between overflow-hidden">
+                        <div class="lcd-grid-overlay absolute inset-0 pointer-events-none z-10"></div>
+
+                        <!-- Screen Header: Signal, Title, Battery -->
+                        <div class="flex justify-between items-center text-[9px] pixel-font z-20 pt-0.5 px-0.5">
+                            <div class="flex flex-col items-center gap-0.5" title="Signal">
+                                <div class="flex items-end gap-[1px] h-3">
+                                    <div class="w-[2px] h-[3px] bg-[#1a2d10]"></div>
+                                    <div class="w-[2px] h-[5px] bg-[#1a2d10]"></div>
+                                    <div class="w-[2px] h-[8px] bg-[#1a2d10]"></div>
+                                    <div class="w-[2px] h-[11px] bg-[#1a2d10]"></div>
+                                </div>
+                                <span class="text-[7px]">Y</span>
+                            </div>
+                            
+                            <div id="status-title" class="font-bold tracking-tight text-[10px]">Snake II</div>
+                            
+                            <div class="flex flex-col items-center gap-0.5" title="Battery">
+                                <div class="border border-[#1a2d10] w-3 h-3.5 p-[1px] flex flex-col justify-between">
+                                    <div class="w-full h-[2px] bg-[#1a2d10]"></div>
+                                    <div class="w-full h-[2px] bg-[#1a2d10]"></div>
+                                    <div class="w-full h-[2px] bg-[#1a2d10]"></div>
+                                </div>
+                                <span class="text-[7px]">B</span>
+                            </div>
+                        </div>
+
+                        <!-- Canvas / Game Display Area -->
+                        <div class="relative flex-grow flex items-center justify-center my-0.5 z-0">
+                            <canvas id="gameCanvas" width="180" height="110" class="block bg-transparent"></canvas>
+                            
+                            <div id="startScreen" class="absolute inset-0 flex flex-col items-center justify-center text-center p-1 z-20">
+                                <div class="pixel-font text-[11px] font-bold mb-1">SNAKE II</div>
+                                <div class="text-[10px] font-bold mb-2">กด Navi เริ่มเล่น</div>
+                                <div class="pixel-font text-[8px] blink-text bg-[#1a2d10] text-[#92a87a] px-1.5 py-0.5 rounded">PRESS NAVI</div>
+                            </div>
+
+                            <div id="gameOverScreen" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center p-1 z-20 bg-[#92a87a]">
+                                <div class="pixel-font text-[10px] font-bold mb-1">GAME OVER</div>
+                                <div class="text-[10px] font-bold">คะแนน: <span id="finalScore">0</span></div>
+                                <div class="pixel-font text-[8px] blink-text mt-2 bg-[#1a2d10] text-[#92a87a] px-1.5 py-0.5 rounded">กด NAVI ใหม่</div>
+                            </div>
+                        </div>
+
+                        <!-- Screen Footer -->
+                        <div class="flex justify-between items-center text-[8px] pixel-font z-20 border-t border-[#1a2d10]/30 pt-0.5 px-0.5">
+                            <div>Score:<span id="scoreDisplay">0</span></div>
+                            <div>High:<span id="highScoreDisplay">0</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full grid grid-cols-3 gap-2 mt-3 px-1">
+                    <button id="btnRightSoft" class="navi-key h-10 rounded-tl-2xl rounded-br-xl text-slate-800 font-extrabold text-sm flex items-center justify-center active:scale-95">
+                        <span>C</span>
+                    </button>
+
+                    <button id="btnNavi" class="navi-key h-11 rounded-full text-slate-900 font-bold text-xs flex flex-col items-center justify-center border-b-2 border-slate-400 active:scale-95">
+                        <div class="w-6 h-1 bg-cyan-600 rounded-full mb-0.5"></div>
+                    </button>
+
+                    <button id="btnScroll" class="navi-key h-10 rounded-tr-2xl rounded-bl-xl text-slate-800 font-extrabold text-xs flex flex-col items-center justify-center active:scale-95">
+                        <span>▲</span>
+                        <span class="-mt-1">▼</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="w-full grid grid-cols-3 gap-y-3 gap-x-3 mt-5 px-2">
+                <button id="key1" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-slate-900 leading-none">1</span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">oo</span>
+                </button>
+
+                <button id="key2" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center ring-2 ring-amber-500/50">
+                    <span class="text-xs font-bold text-slate-900 leading-none">2 <span class="text-[9px]">▲</span></span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">abc</span>
+                </button>
+
+                <button id="key3" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-slate-900 leading-none">3</span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">def</span>
+                </button>
+
+                <button id="key4" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center ring-2 ring-amber-500/50">
+                    <span class="text-xs font-bold text-slate-900 leading-none">4 ◀</span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">ghi</span>
+                </button>
+
+                <button id="key5" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-slate-900 leading-none">5</span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">jkl</span>
+                </button>
+
+                <button id="key6" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center ring-2 ring-amber-500/50">
+                    <span class="text-xs font-bold text-slate-900 leading-none">6 ▶</span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">mno</span>
+                </button>
+
+                <button id="key7" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-slate-900 leading-none">7</span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">pqrs</span>
+                </button>
+
+                <button id="key8" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center ring-2 ring-amber-500/50">
+                    <span class="text-xs font-bold text-slate-900 leading-none">8 ▼</span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">tuv</span>
+                </button>
+
+                <button id="key9" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-slate-900 leading-none">9</span>
+                    <span class="text-[7px] font-bold text-slate-600 leading-none">wxyz</span>
+                </button>
+
+                <button id="keyStar" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-slate-900 leading-none">* +</span>
+                </button>
+
+                <button id="key0" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-slate-900 leading-none">0 _</span>
+                </button>
+
+                <button id="keyHash" class="key-btn h-9 rounded-[50%] flex flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-slate-900 leading-none"># ⇧</span>
+                </button>
+            </div>
+
+            <!-- Bottom Mic Hole -->
+            <div class="mt-4 w-2 h-2 rounded-full bg-[#0a0e14] border border-[#2b3542]"></div>
+        </div>
+
+        <!-- Controls Guide Card -->
+        <div class="mt-3 w-full bg-slate-800/80 backdrop-blur rounded-xl p-3 text-slate-300 text-xs border border-slate-700 shadow-xl">
+            <div class="font-bold text-cyan-400 mb-1 flex items-center justify-between">
+                <span>🎮 วิธีการเล่น:</span>
+                <span class="text-[10px] text-slate-400">Nokia Classic Snake II</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+                <div>• <b class="text-white">ปุ่มทิศทาง:</b> กด <span class="text-amber-300 font-mono">2, 4, 6, 8</span> หรือ ปุ่มลูกศร</div>
+                <div>• <b class="text-white">ตกลง / เริ่ม:</b> กดปุ่ม <span class="text-cyan-300 font-bold">Navi</span> หรือ <span class="text-amber-300 font-mono">Enter</span></div>
+                <div>• <b class="text-white">ย้อนกลับ / ลบ:</b> กดปุ่ม <span class="text-slate-200 font-bold">C</span> หรือ <span class="text-amber-300 font-mono">Esc</span></div>
+                <div>• <b class="text-white">ฟังเพลงโนเกีย:</b> กดปุ่ม <span class="text-slate-200 font-mono">*</span> หรือ <span class="text-slate-200 font-mono">#</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class NokiaAudio {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            playTone(freq, duration = 0.08, type = 'square', volume = 0.12) {
+                try {
+                    this.init();
+                    if (this.ctx.state === 'suspended') this.ctx.resume();
+
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+                    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            }
+
+            playMoveSound() {
+                this.playTone(300, 0.02, 'triangle', 0.05);
+            }
+
+            playEatSound() {
+                this.playTone(650, 0.04, 'square', 0.15);
+                setTimeout(() => this.playTone(950, 0.06, 'square', 0.15), 45);
+            }
+
+            playGameOverSound() {
+                const notes = [450, 380, 320, 240];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => this.playTone(freq, 0.15, 'sawtooth', 0.2), idx * 110);
+                });
+            }
+
+            playNokiaRing() {
+                const notes = [
+                    {f: 1320, d: 0.12}, {f: 1175, d: 0.12}, {f: 740, d: 0.24}, {f: 830, d: 0.24},
+                    {f: 1109, d: 0.12}, {f: 987, d: 0.12}, {f: 587, d: 0.24}, {f: 659, d: 0.24},
+                    {f: 987, d: 0.12}, {f: 880, d: 0.12}, {f: 554, d: 0.24}, {f: 659, d: 0.24}, {f: 880, d: 0.4}
+                ];
+                let delay = 0;
+                notes.forEach(n => {
+                    setTimeout(() => this.playTone(n.f, n.d, 'square', 0.12), delay);
+                    delay += n.d * 1000 + 25;
+                });
+            }
+        }
+
+        const sound = new NokiaAudio();
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const GRID_SIZE = 6; 
+        const COLS = Math.floor(canvas.width / GRID_SIZE);
+        const ROWS = Math.floor(canvas.height / GRID_SIZE);
+
+        const COLOR_DARK = '#1a2d10';
+        const COLOR_LIGHT = '#92a87a';
+
+        let snake = [];
+        let food = { x: 0, y: 0 };
+        let dir = { x: 1, y: 0 };
+        let nextDir = { x: 1, y: 0 };
+        let score = 0;
+        let highScore = localStorage.getItem('nokia_snake_highscore') || 0;
+        let timer = null;
+        let isPlaying = false;
+        let speed = 110;
+
+        document.getElementById('highScoreDisplay').textContent = highScore;
+
+        function startGame() {
+            snake = [
+                { x: 6, y: 9 },
+                { x: 5, y: 9 },
+                { x: 4, y: 9 }
+            ];
+            dir = { x: 1, y: 0 };
+            nextDir = { x: 1, y: 0 };
+            score = 0;
+            speed = 110;
+
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('status-title').textContent = 'Snake II';
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+
+            spawnFood();
+            isPlaying = true;
+
+            if (timer) clearInterval(timer);
+            timer = setInterval(gameStep, speed);
+
+            sound.playEatSound();
+        }
+
+        function spawnFood() {
+            let valid = false;
+            while (!valid) {
+                food.x = Math.floor(Math.random() * COLS);
+                food.y = Math.floor(Math.random() * ROWS);
+                valid = !snake.some(seg => seg.x === food.x && seg.y === food.y);
+            }
+        }
+
+        function gameStep() {
+            if (!isPlaying) return;
+
+            dir = { ...nextDir };
+            const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+            // Wall Wrap Around
+            if (head.x < 0) head.x = COLS - 1;
+            if (head.x >= COLS) head.x = 0;
+            if (head.y < 0) head.y = ROWS - 1;
+            if (head.y >= ROWS) head.y = 0;
+
+            // Self Collision check
+            if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            snake.unshift(head);
+
+            // Food collision
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                document.getElementById('scoreDisplay').textContent = score;
+
+                if (score > highScore) {
+                    highScore = score;
+                    document.getElementById('highScoreDisplay').textContent = highScore;
+                    localStorage.setItem('nokia_snake_highscore', highScore);
+                }
+
+                sound.playEatSound();
+                spawnFood();
+
+                if (score % 40 === 0 && speed > 45) {
+                    speed -= 7;
+                    clearInterval(timer);
+                    timer = setInterval(gameStep, speed);
+                }
+            } else {
+                snake.pop();
+            }
+
+            render();
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Food
+            ctx.fillStyle = COLOR_DARK;
+            const fx = food.x * GRID_SIZE;
+            const fy = food.y * GRID_SIZE;
+            ctx.fillRect(fx + 1, fy + 1, GRID_SIZE - 2, GRID_SIZE - 2);
+
+            // Draw Snake segments
+            snake.forEach((seg, idx) => {
+                const sx = seg.x * GRID_SIZE;
+                const sy = seg.y * GRID_SIZE;
+
+                ctx.fillStyle = COLOR_DARK;
+                ctx.fillRect(sx + 1, sy + 1, GRID_SIZE - 2, GRID_SIZE - 2);
+
+                if (idx > 0 && idx % 2 === 0) {
+                    ctx.fillStyle = COLOR_LIGHT;
+                    ctx.fillRect(sx + 2, sy + 2, 2, 2);
+                }
+            });
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            clearInterval(timer);
+            sound.playGameOverSound();
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('status-title').textContent = 'Ended';
+        }
+
+        function setDirection(nx, ny) {
+            if (nx !== -dir.x || ny !== -dir.y) {
+                nextDir = { x: nx, y: ny };
+                sound.playMoveSound();
+            }
+        }
+
+        function pulseBtn(id) {
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.classList.add('active');
+                setTimeout(() => btn.classList.remove('active'), 120);
+            }
+        }
+
+        // Attach key listeners
+        document.getElementById('key2').addEventListener('click', () => { setDirection(0, -1); pulseBtn('key2'); });
+        document.getElementById('key8').addEventListener('click', () => { setDirection(0, 1); pulseBtn('key8'); });
+        document.getElementById('key4').addEventListener('click', () => { setDirection(-1, 0); pulseBtn('key4'); });
+        document.getElementById('key6').addEventListener('click', () => { setDirection(1, 0); pulseBtn('key6'); });
+
+        document.getElementById('btnNavi').addEventListener('click', () => {
+            pulseBtn('btnNavi');
+            if (!isPlaying) startGame();
+        });
+
+        document.getElementById('btnRightSoft').addEventListener('click', () => {
+            pulseBtn('btnRightSoft');
+            if (isPlaying) {
+                isPlaying = false;
+                clearInterval(timer);
+                document.getElementById('startScreen').classList.remove('hidden');
+                document.getElementById('status-title').textContent = 'Snake II';
+            }
+        });
+
+        document.getElementById('btnScroll').addEventListener('click', () => {
+            pulseBtn('btnScroll');
+            if (isPlaying) setDirection(-dir.y, dir.x);
+        });
+
+        document.getElementById('keyStar').addEventListener('click', () => { pulseBtn('keyStar'); sound.playNokiaRing(); });
+        document.getElementById('keyHash').addEventListener('click', () => { pulseBtn('keyHash'); sound.playNokiaRing(); });
+
+        window.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowUp':
+                case '2':
+                case 'w':
+                case 'W':
+                    setDirection(0, -1);
+                    pulseBtn('key2');
+                    break;
+                case 'ArrowDown':
+                case '8':
+                case 's':
+                case 'S':
+                    setDirection(0, 1);
+                    pulseBtn('key8');
+                    break;
+                case 'ArrowLeft':
+                case '4':
+                case 'a':
+                case 'A':
+                    setDirection(-1, 0);
+                    pulseBtn('key4');
+                    break;
+                case 'ArrowRight':
+                case '6':
+                case 'd':
+                case 'D':
+                    setDirection(1, 0);
+                    pulseBtn('key6');
+                    break;
+                case 'Enter':
+                case ' ':
+                    pulseBtn('btnNavi');
+                    if (!isPlaying) startGame();
+                    break;
+                case 'Escape':
+                case 'Backspace':
+                    pulseBtn('btnRightSoft');
+                    if (isPlaying) {
+                        isPlaying = false;
+                        clearInterval(timer);
+                        document.getElementById('startScreen').classList.remove('hidden');
+                    }
+                    break;
+            }
+        });
+
+        render();
+    </script>
+</body>
+</html>
